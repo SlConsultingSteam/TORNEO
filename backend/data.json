@@ -1,0 +1,28 @@
+{
+  "clients": [
+    {
+      "id": 1751490141115,
+      "name": "pepe",
+      "status": "Dormido",
+      "type": "Premium"
+    }
+  ],
+  "interactions": [
+    {
+      "id": 1751489801804,
+      "clientId": "andrea",
+      "type": "Preventa",
+      "date": "2025-04-30",
+      "notes": "ropa",
+      "repurchasePotential": true
+    },
+    {
+      "id": 1751489812917,
+      "clientId": "felipe",
+      "type": "Preventa",
+      "date": "2025-07-07",
+      "notes": "esa",
+      "repurchasePotential": false
+    }
+  ]
+}

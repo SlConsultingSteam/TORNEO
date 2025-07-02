@@ -1,0 +1,177 @@
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* Clases de utilidad Vibe */
+.text-vibe-primary {
+  color: var(--color-primary) !important;
+}
+
+.bg-vibe-surface {
+  background-color: var(--color-surface) !important;
+}
+
+.border-vibe-primary {
+  border-color: var(--color-primary) !important;
+}
+
+.card-vibe {
+  background-color: var(--color-surface);
+  border: 1px solid #2a2a3e;
+  border-top: 3px solid var(--color-primary);
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-vibe:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 255, 255, 0.2);
+}
+
+.btn-vibe {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-vibe:hover, .btn-vibe:focus {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.25);
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Eliminar bordes y esquinas redondeadas del contenedor principal */
+.bg-dark, .container.bg-dark, .container-fluid.bg-dark {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Tarjetas y Modales */
+.card, .modal-content, .card-vibe, .bg-vibe-surface {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-radius: 10px;
+  border: 1px solid #23233a !important;
+  box-shadow: 0 4px 24px 0 rgba(0,255,255,0.04);
+}
+.card-vibe {
+  border-top: 3px solid var(--color-primary) !important;
+}
+.modal-header {
+  border-bottom: 2px solid var(--color-primary) !important;
+}
+
+/* Títulos vibrantes */
+.card-title, .modal-title, h4.text-vibe-primary {
+  color: var(--color-primary) !important;
+}
+
+/* Tablas */
+.table {
+  background-color: transparent !important;
+  color: var(--color-text) !important;
+}
+.table thead {
+  background-color: rgba(0,255,255,0.08) !important;
+  color: var(--color-text) !important;
+  border-bottom: 2px solid var(--color-primary) !important;
+}
+.table tbody tr {
+  background-color: var(--color-surface) !important;
+}
+.table tbody tr:nth-child(odd) {
+  background-color: #181828 !important;
+}
+.table th, .table td {
+  border-color: #23233a !important;
+}
+
+/* Formularios */
+.form-control, .form-select {
+  background-color: #23233a !important;
+  color: var(--color-text) !important;
+  border: 1.5px solid #333 !important;
+  border-radius: 6px;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(0,255,255,0.15) !important;
+  background-color: #23233a !important;
+  color: var(--color-text) !important;
+}
+.form-label, .form-check-label, .form-floating > label {
+  color: var(--color-text) !important;
+  opacity: 0.85;
+}
+::placeholder {
+  color: var(--color-text-muted) !important;
+  opacity: 0.7 !important;
+}
+
+/* Toasts y Alerts */
+.toast, .alert {
+  background-color: #23233a !important;
+  color: var(--color-text) !important;
+  border-left: 4px solid var(--color-primary) !important;
+}
+
+/* Scrollbar Vibe */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #00e0e0;
+}
