@@ -5,6 +5,18 @@
       "name": "pepe",
       "status": "Dormido",
       "type": "Premium"
+    },
+    {
+      "id": 1751490790438,
+      "name": "andrea",
+      "status": "Activo",
+      "type": "Premium"
+    },
+    {
+      "id": 1751495785949,
+      "name": "felipe",
+      "status": "Dormido",
+      "type": "Ordinario"
     }
   ],
   "interactions": [
@@ -22,6 +34,14 @@
       "type": "Preventa",
       "date": "2025-07-07",
       "notes": "esa",
+      "repurchasePotential": false
+    },
+    {
+      "id": 1751494592627,
+      "clientId": "Juan",
+      "type": "Preventa",
+      "date": "2025-07-01",
+      "notes": "aaaa",
       "repurchasePotential": false
     }
   ]

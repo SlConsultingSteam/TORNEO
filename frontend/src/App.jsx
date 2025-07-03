@@ -49,20 +49,36 @@ function App() {
   }
 
   return (
-    <div className="min-vh-100 w-100">
-      <Navbar variant="dark" expand="lg" className="mb-4" style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-primary)' }}>
+    <div className="min-vh-100 w-100" style={{ backgroundColor: 'var(--color-bg-main)', color: 'var(--color-text-main)' }}>
+      <Navbar variant="dark" expand="lg" className="mb-4 navbar shadow-sm">
         <Container fluid className="px-md-4">
           <OverlayTrigger placement="bottom" overlay={renderTooltip}>
-            <Navbar.Brand href="#" className="fw-bold fs-4" onClick={() => showToast('¡Codificando con buena vibra! 🚀', 'info')}>
-              CARE<span className="text-vibe-primary">Connect</span>
+            <Navbar.Brand
+              href="#"
+              className="fw-bold fs-3 navbar-brand"
+              onClick={() => showToast('¡Has encontrado el Vibe! Sigue codificando con energía.', 'info')}
+            >
+              CARE<span className="text-accent">Connect</span>
             </Navbar.Brand>
           </OverlayTrigger>
           <Navbar.Toggle aria-controls="main-navbar" />
           <Navbar.Collapse id="main-navbar">
-            <Nav className="ms-auto">
-              <Nav.Link active={view === 'interaccion'} onClick={() => setView('interaccion')}>Registrar Interacción</Nav.Link>
-              <Nav.Link active={view === 'clientes'} onClick={() => setView('clientes')}>Clientes</Nav.Link>
-              <Nav.Link active={view === 'metricas'} onClick={() => setView('metricas')}>Métricas</Nav.Link>
+            <Nav className="ms-auto gap-2">
+              <Nav.Link
+                className="nav-link"
+                active={view === 'interaccion'}
+                onClick={() => setView('interaccion')}
+              >Registrar Interacción</Nav.Link>
+              <Nav.Link
+                className="nav-link"
+                active={view === 'clientes'}
+                onClick={() => setView('clientes')}
+              >Clientes</Nav.Link>
+              <Nav.Link
+                className="nav-link"
+                active={view === 'metricas'}
+                onClick={() => setView('metricas')}
+              >Métricas</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -75,14 +91,21 @@ function App() {
       </main>
 
       <ToastContainer position="bottom-end" className="p-3">
-        <Toast onClose={() => setToast({ ...toast, show: false })} show={toast.show} delay={3000} autohide bg={toast.variant}>
-          <Toast.Header>
+        <Toast
+          onClose={() => setToast({ ...toast, show: false })}
+          show={toast.show}
+          delay={3000}
+          autohide
+          className="shadow"
+          style={{ minWidth: 320 }}
+        >
+          <Toast.Header className="bg-surface border-main">
             <strong className="me-auto">Notificación</strong>
           </Toast.Header>
           <Toast.Body>{toast.message}</Toast.Body>
         </Toast>
       </ToastContainer>
-      </div>
+    </div>
   )
 }
 
