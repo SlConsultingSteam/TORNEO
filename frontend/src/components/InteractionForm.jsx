@@ -1,32 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, Button, Card, Row, Col, Spinner } from 'react-bootstrap';
 
-function InteractionForm({ onSuccess, onError }) {
-  const [client, setClient] = useState('');
-  const [type, setType] = useState('Estratégica');
-  const [date, setDate] = useState('');
-  const [notes, setNotes] = useState('');
-  const [repurchasePotential, setRepurchasePotential] = useState(false);
+function InteractionForm({ onSuccess, onError, initialValues = null, editMode = false }) {
+  const [client, setClient] = useState(initialValues ? initialValues.clientId : '');
+  const [type, setType] = useState(initialValues ? initialValues.type : 'Estratégica');
+  const [date, setDate] = useState(initialValues ? initialValues.date : '');
+  const [notes, setNotes] = useState(initialValues ? initialValues.notes : '');
+  const [repurchasePotential, setRepurchasePotential] = useState(initialValues ? initialValues.repurchasePotential : false);
   const [loading, setLoading] = useState(false);
+  const [clientsList, setClientsList] = useState([]);
+
+  useEffect(() => {
+    if (initialValues) {
+      setClient(initialValues.clientId);
+      setType(initialValues.type);
+      setDate(initialValues.date);
+      setNotes(initialValues.notes);
+      setRepurchasePotential(initialValues.repurchasePotential);
+    }
+
+    const fetchClients = async () => {
+      try {
+        const res = await fetch('/api/clients');
+        if (!res.ok) throw new Error('No se pudieron cargar los clientes para el selector.');
+        const data = await res.json();
+        setClientsList(data);
+        if (initialValues && initialValues.clientId) {
+          const foundClient = data.find(c => c.name === initialValues.clientId);
+          if (foundClient) {
+            setClient(foundClient.name);
+          }
+        }
+      } catch (err) {
+        onError(`Error al cargar clientes: ${err.message}`);
+      }
+    };
+    fetchClients();
+
+  }, [initialValues]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/interactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId: client, type, date, notes, repurchasePotential })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al registrar la interacción');
+      let res, data;
+      if (editMode && initialValues && initialValues.id) {
+        res = await fetch(`/api/interactions/${initialValues.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId: client, type, date, notes, repurchasePotential })
+        });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al editar la interacción');
+      } else {
+        res = await fetch('/api/interactions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId: client, type, date, notes, repurchasePotential })
+        });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al registrar la interacción');
+        setClient('');
+        setType('Estratégica');
+        setDate('');
+        setNotes('');
+        setRepurchasePotential(false);
       }
-      setClient('');
-      setType('Estratégica');
-      setDate('');
-      setNotes('');
-      setRepurchasePotential(false);
       if (onSuccess) onSuccess();
     } catch (err) {
       if (onError) onError(err.message);
@@ -58,7 +97,13 @@ function InteractionForm({ onSuccess, onError }) {
           opacity: 0.8
         }}
       />
-      <Card.Body className="d-flex flex-column p-4 position-relative">
+      <Card.Body 
+        className="d-flex flex-column position-relative"
+        style={{
+          background: 'var(--color-bg-card-dark)',
+          padding: editMode ? '3.5rem 1.5rem 1.5rem 1.5rem' : '1.5rem'
+        }}
+      >
         <Card.Title 
           className="mb-4 fw-bold text-center"
           style={{
@@ -66,23 +111,22 @@ function InteractionForm({ onSuccess, onError }) {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            fontSize: '1.5rem'
+            fontSize: '1.5rem',
+            marginTop: '0'
           }}
         >
-          <i className="bi bi-plus-circle me-2"></i>
-          Nueva Interacción
+          <i className={`bi ${editMode ? 'bi-pencil-square' : 'bi-plus-circle'} me-2`}></i>
+          {editMode ? 'Editar Interacción' : 'Nueva Interacción'}
         </Card.Title>
         <Form onSubmit={handleSubmit} className="flex-grow-1">
-          <Row className="g-3">
+          <Row className="g-3 align-items-start">
             <Col xs={12}>
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-2">
                 <Form.Label className="fw-bold fs-6" style={{ color: 'var(--color-text-secondary)' }}>
                   <i className="bi bi-person me-2"></i>
                   Nombre del Cliente
                 </Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Ingresa el nombre del cliente" 
+                <Form.Select 
                   value={client} 
                   onChange={e => setClient(e.target.value)} 
                   required 
@@ -91,14 +135,20 @@ function InteractionForm({ onSuccess, onError }) {
                     border: '2px solid var(--color-border)',
                     borderRadius: '10px',
                     padding: '0.75rem 1rem',
-                    color: 'var(--color-text-main)'
+                    color: 'var(--color-text-main)',
+                    height: '48px',
                   }}
-                />
+                >
+                  <option value="">Selecciona un cliente</option>
+                  {clientsList.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
             <Col xs={12} md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold fs-6" style={{ color: 'var(--color-text-secondary)' }}>
+              <Form.Group className="mb-2 d-flex flex-column">
+                <Form.Label className="fw-bold fs-6 mb-1" style={{ color: 'var(--color-text-secondary)' }}>
                   <i className="bi bi-tag me-2"></i>
                   Tipo de Interacción
                 </Form.Label>
@@ -111,7 +161,8 @@ function InteractionForm({ onSuccess, onError }) {
                     border: '2px solid var(--color-border)',
                     borderRadius: '10px',
                     padding: '0.75rem 1rem',
-                    color: 'var(--color-text-main)'
+                    color: 'var(--color-text-main)',
+                    height: '48px',
                   }}
                 >
                   <option value="Estratégica">Estratégica</option>
@@ -121,8 +172,8 @@ function InteractionForm({ onSuccess, onError }) {
               </Form.Group>
             </Col>
             <Col xs={12} md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold fs-6" style={{ color: 'var(--color-text-secondary)' }}>
+              <Form.Group className="mb-2 d-flex flex-column">
+                <Form.Label className="fw-bold fs-6 mb-1" style={{ color: 'var(--color-text-secondary)' }}>
                   <i className="bi bi-calendar me-2"></i>
                   Fecha
                 </Form.Label>
@@ -137,13 +188,14 @@ function InteractionForm({ onSuccess, onError }) {
                     border: '2px solid var(--color-border)',
                     borderRadius: '10px',
                     padding: '0.75rem 1rem',
-                    color: 'var(--color-text-main)'
+                    color: 'var(--color-text-main)',
+                    height: '48px',
                   }}
                 />
               </Form.Group>
             </Col>
             <Col xs={12}>
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-2">
                 <Form.Label className="fw-bold fs-6" style={{ color: 'var(--color-text-secondary)' }}>
                   <i className="bi bi-chat-text me-2"></i>
                   Notas Breves
@@ -166,7 +218,7 @@ function InteractionForm({ onSuccess, onError }) {
               </Form.Group>
             </Col>
             <Col xs={12}>
-              <Form.Group className="mb-4">
+              <Form.Group className="mb-2">
                 <Form.Check 
                   type="switch"
                   id="repurchase-switch"
@@ -211,12 +263,12 @@ function InteractionForm({ onSuccess, onError }) {
                     className="me-2"
                     style={{ width: '1rem', height: '1rem' }}
                   />
-                  Registrando...
+                  {editMode ? 'Guardando...' : 'Registrando...'}
                 </>
               ) : (
                 <>
-                  <i className="bi bi-check-circle me-2"></i>
-                  Registrar Interacción
+                  <i className={`bi ${editMode ? 'bi-save' : 'bi-check-circle'} me-2`}></i>
+                  {editMode ? 'Guardar Cambios' : 'Registrar Interacción'}
                 </>
               )}
             </Button>

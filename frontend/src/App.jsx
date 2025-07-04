@@ -9,7 +9,7 @@ import ClientManagement from './components/ClientManagement'
 import MetricsDashboard from './components/MetricsDashboard'
 
 function App() {
-  const [view, setView] = useState('interaccion')
+  const [view, setView] = useState('clientes')
   const [refreshFlag, setRefreshFlag] = useState(false)
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' })
 
@@ -35,7 +35,7 @@ function App() {
               }} onError={(msg) => showToast(msg, 'danger')} />
             </Col>
             <Col md={7} lg={8}>
-              <InteractionList refreshFlag={refreshFlag} />
+              <InteractionList refreshFlag={refreshFlag} showToast={showToast} />
             </Col>
           </Row>
         )

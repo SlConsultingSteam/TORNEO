@@ -413,6 +413,8 @@ p.opacity-75.fs-6 {
   border-radius: 8px;
   padding: 0.5rem;
   transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") !important;
+  opacity: 1 !important;
 }
 
 .modal .modal-header .btn-close:hover {
@@ -508,10 +510,12 @@ p.opacity-75.fs-6 {
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px var(--color-shadow-elevated);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 }
 
 .btn:hover {
   transform: translateY(-2px);
+  transition: transform 0.3s ease-out;
 }
 
 /* Animaciones */
@@ -547,10 +551,12 @@ p.opacity-75.fs-6 {
   .card, .modal-content, .table, .toast, .alert {
     border-radius: 8px;
     margin: 0.5rem;
+    transition: all 0.3s ease-in-out;
   }
   
   .navbar {
     padding: 0.5rem 1rem;
+    transition: all 0.3s ease-in-out;
   }
   
   .navbar-brand {
@@ -564,6 +570,7 @@ p.opacity-75.fs-6 {
   .btn, .btn-vibe {
     font-size: 14px !important;
     padding: 0.6rem 1.2rem;
+    transition: all 0.3s ease-in-out;
   }
 }
 
@@ -590,10 +597,7 @@ p.opacity-75.fs-6 {
   border-radius: 12px;
 }
 
-/* Transiciones globales */
-* {
-  transition: all 0.2s ease;
-}
+/* Remueve la transición global y aplica donde es necesario */
 
 .form-control:focus,
 .form-select:focus,
@@ -610,47 +614,6 @@ p.opacity-75.fs-6 {
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* Responsive adicional */
-@media (max-width: 576px) {
-  .display-4 {
-    font-size: 2rem;
-  }
-  
-  .card-body {
-    padding: 1rem;
-  }
-  
-  .btn-lg {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .form-control-lg, .form-select-lg {
-    font-size: 1rem;
-    padding: 0.75rem 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .navbar-brand {
-    font-size: 1.2rem;
-  }
-  
-  .card-title, .modal-title, h2, h3, h4, h5, h6 {
-    font-size: 1.1rem;
-  }
-}
-
-@media (min-width: 992px) {
-  .card:hover {
-    transform: translateY(-3px);
-  }
-  
-  .btn:hover {
-    transform: translateY(-3px);
-  }
 }
 
 /* Clases específicas para botones */
@@ -693,11 +656,6 @@ p.opacity-75.fs-6 {
 
 .shadow {
   box-shadow: 0 4px 20px var(--color-shadow) !important;
-}
-
-/* Transiciones globales */
-* {
-  transition: all 0.2s ease;
 }
 
 /* Botones */
@@ -785,45 +743,55 @@ button.btn, .btn-vibe, .btn-lg {
 .alert-success {
   background: var(--color-success-glow) !important;
   border-color: var(--color-success) !important;
-  color: var(--color-success-light) !important;
 }
 
 .alert-danger {
   background: var(--color-danger-glow) !important;
   border-color: var(--color-danger) !important;
-  color: var(--color-danger-light) !important;
 }
 
 .alert-warning {
   background: var(--color-warning-glow) !important;
   border-color: var(--color-warning) !important;
-  color: var(--color-warning-light) !important;
 }
 
 .alert-info {
   background: var(--color-info-glow) !important;
   border-color: var(--color-info) !important;
-  color: var(--color-info-light) !important;
 }
 
-/* Modales refinados */
+/* Modal specific */
 .modal-content {
   background: var(--color-bg-card) !important;
   border: 1px solid var(--color-border) !important;
   border-radius: 16px;
+  box-shadow: 0 10px 40px var(--color-shadow-elevated);
+  transition: all 0.3s ease-out;
 }
 
-.modal-header {
-  background: var(--color-bg-surface) !important;
-  border-bottom: 1px solid var(--color-border) !important;
+.modal-header, .modal-header-white-x {
+  background: #181c24 !important;
+}
+.modal-header .btn-close, .modal-header-white-x .btn-close {
+  filter: none !important;
+  color: white !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+  transition: all 0.15s ease-in-out;
+}
+.modal-header .btn-close svg, .modal-header-white-x .btn-close svg {
+  color: white !important;
+  fill: white !important;
 }
 
 .modal-footer {
   background: var(--color-bg-surface) !important;
   border-top: 1px solid var(--color-border) !important;
+  border-radius: 0 0 16px 16px;
+  padding: 1rem 1.5rem;
 }
 
-/* Transiciones suaves */
+/* Transiciones para elementos comunes */
 .card, .btn, .nav-link, .form-control, .form-select {
   transition: all 0.3s ease;
 }
@@ -832,37 +800,27 @@ button.btn, .btn-vibe, .btn-lg {
   transition: all 0.3s ease;
 }
 
-/* Nav links activos */
 .nav-link.active {
   transition: all 0.3s ease;
 }
 
 .nav-link.active::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 3px;
-  background: var(--gradient-primary);
-  border-radius: 2px;
   transition: all 0.3s ease;
 }
 
-/* Estilos para el dashboard de métricas */
+/* Dashboards y Métricas */
 .metrics-dashboard {
-  animation: fadeInUp 0.6s ease-out;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .metric-card {
-  transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
+  transition: all 0.3s ease;
 }
 
 .metric-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px var(--color-shadow-elevated);
 }
 
 .metric-card:nth-child(1) { animation-delay: 0.1s; }
@@ -871,14 +829,14 @@ button.btn, .btn-vibe, .btn-lg {
 .metric-card:nth-child(4) { animation-delay: 0.4s; }
 
 .distribution-card {
-  transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
   animation-delay: 0.5s;
+  transition: all 0.3s ease;
 }
 
 .distribution-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px var(--color-shadow-elevated);
 }
 
 .loading-container {
@@ -886,57 +844,39 @@ button.btn, .btn-vibe, .btn-lg {
 }
 
 .custom-progress .progress-bar {
-  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%) !important;
-  border-radius: inherit;
   transition: width 0.8s ease;
 }
 
-/* Animaciones mejoradas */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Estilos para el dashboard de clientes */
+/* Clientes */
 .clients-dashboard {
-  animation: fadeInUp 0.6s ease-out;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .client-form-card {
-  transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
   animation-delay: 0.1s;
+  transition: all 0.3s ease;
 }
 
 .client-form-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px var(--color-shadow-elevated);
 }
 
 .client-list-card {
-  transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
   animation-delay: 0.2s;
+  transition: all 0.3s ease;
 }
 
 .client-list-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px var(--color-shadow-elevated);
 }
 
 .client-table {
-  transition: all 0.3s ease;
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.3s;
 }
 
 .client-row {
@@ -945,35 +885,35 @@ button.btn, .btn-vibe, .btn-lg {
 
 .client-row:hover {
   background: var(--color-primary-glow) !important;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
 }
 
-/* Estilos para el dashboard de interacciones */
+/* Interacciones */
 .interaction-form-card {
-  transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
   animation-delay: 0.1s;
+  transition: all 0.3s ease;
 }
 
 .interaction-form-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px var(--color-shadow-elevated);
 }
 
 .interaction-list-card {
-  transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
   animation-delay: 0.2s;
+  transition: all 0.3s ease;
 }
 
 .interaction-list-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px var(--color-shadow-elevated);
 }
 
 .interaction-table {
-  transition: all 0.3s ease;
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.3s;
 }
 
 .interaction-row {
@@ -982,8 +922,7 @@ button.btn, .btn-vibe, .btn-lg {
 
 .interaction-row:hover {
   background: var(--color-primary-glow) !important;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
 }
 
 /* Responsive final */
@@ -1025,5 +964,68 @@ button.btn, .btn-vibe, .btn-lg {
   
   .interaction-row:hover {
     transform: scale(1.01);
+  }
+}
+
+/* Customer Journey Timeline */
+.customer-journey-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.customer-journey-timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border-light);
+}
+
+.timeline-item {
+  position: relative;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  background: var(--color-bg-card);
+  border-radius: 50%;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 3px var(--color-bg-card);
+}
+
+.timeline-marker i {
+  font-size: 0.7em; /* Ajusta el tamaño del círculo */
+}
+
+.timeline-content {
+  margin-left: 10px; /* Ajusta para alinear con el marcador */
+}
+
+/* Responsive adjustments for timeline */
+@media (max-width: 768px) {
+  .customer-journey-timeline {
+    padding-left: 20px;
+  }
+
+  .timeline-marker {
+    left: -15px;
+    font-size: 1rem;
+  }
+
+  .timeline-marker i {
+    font-size: 0.6em;
+  }
+
+  .timeline-content {
+    margin-left: 5px;
   }
 }

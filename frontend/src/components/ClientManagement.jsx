@@ -1,93 +1,72 @@
 import { useState, useEffect } from 'react';
-import { Form, Button, Card, Table, Row, Col, Spinner, Alert, Badge, Modal } from 'react-bootstrap';
+import { Form, Button, Card, Table, Row, Col, Spinner, Alert, Badge, Modal, Container } from 'react-bootstrap';
 
 function ClientJourneyModal({ client, interactions, show, onHide }) {
   if (!client) return null;
 
   const clientInteractions = interactions
-    .filter(i => i.clientId === client.name)
+    .filter(i => i.clientId.toLowerCase() === client.name.toLowerCase())
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered backdrop="static">
-      <Modal.Header closeButton className="border-bottom">
-        <Modal.Title className="fw-bold d-flex align-items-center">
+    <Modal show={show} onHide={onHide} size="lg" centered backdrop="static" className="client-journey-modal">
+      <Modal.Header closeButton className="border-bottom px-4 pt-4 pb-3 modal-header-vibe">
+        <Modal.Title 
+          className="fw-bold d-flex align-items-center w-100 justify-content-center"
+          style={{
+            background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            fontSize: '2rem'
+          }}
+        >
           <i className="bi bi-graph-up me-3 fs-4"></i>
           <span>Historial de Interacciones: {client.name}</span>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="p-4">
+      <Modal.Body className="p-4 modal-body-vibe">
         {clientInteractions.length > 0 ? (
-          <div className="table-responsive">
-            <Table striped bordered hover responsive>
-              <thead>
-                <tr>
-                  <th className="fw-bold">
-                    <i className="bi bi-calendar me-2"></i>
-                    Fecha
-                  </th>
-                  <th className="fw-bold">
-                    <i className="bi bi-tag me-2"></i>
-                    Tipo
-                  </th>
-                  <th className="fw-bold">
-                    <i className="bi bi-chat me-2"></i>
-                    Notas
-                  </th>
-                  <th className="fw-bold">
-                    <i className="bi bi-star me-2"></i>
-                    Potencial Recompra
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientInteractions.map((inter) => (
-                  <tr key={inter.id}>
-                    <td>
-                      {new Date(inter.date).toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </td>
-                    <td>
-                      <Badge 
-                        bg={inter.type === 'Estratégica' ? 'info' : inter.type === 'Preventa' ? 'warning' : 'success'}
-                        className="fw-medium px-3 py-2"
-                        style={{
-                          backgroundColor: inter.type === 'Estratégica' ? 'var(--color-info)' : 
-                                        inter.type === 'Preventa' ? 'var(--color-warning)' : 'var(--color-success)'
-                        }}
-                      >
+          <div className="customer-journey-timeline">
+            {clientInteractions.map((inter, index) => (
+              <div key={inter.id} className="timeline-item mb-4">
+                <div className="timeline-marker">
+                  <i className="bi bi-circle-fill"></i>
+                </div>
+                <div className="timeline-content card shadow-sm border-0" style={{ background: 'var(--color-bg-surface)', borderRadius: '12px' }}>
+                  <Card.Body className="p-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h6 className="mb-0 fw-bold" style={{ color: 'var(--color-primary)' }}>
+                        <i className="bi bi-tag me-2"></i>
                         {inter.type}
+                      </h6>
+                      <small className="text-muted fw-medium">
+                        <i className="bi bi-calendar me-1"></i>
+                        {new Date(inter.date).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </small>
+                    </div>
+                    <p className="mb-2 text-secondary">
+                      <i className="bi bi-chat-text me-2"></i>
+                      {inter.notes || 'Sin notas'}
+                    </p>
+                    {inter.repurchasePotential && (
+                      <Badge 
+                        bg="success" 
+                        className="fw-medium px-3 py-2 mt-2"
+                        style={{ backgroundColor: 'var(--color-success)' }}
+                      >
+                        <i className="bi bi-star-fill me-1"></i>
+                        Potencial de Recompra
                       </Badge>
-                    </td>
-                    <td>
-                      {inter.notes || '-'}
-                    </td>
-                    <td className="align-middle">
-                      {inter.repurchasePotential ? 
-                        <Badge 
-                          bg="success" 
-                          className="fw-medium px-3 py-2"
-                          style={{ backgroundColor: 'var(--color-success)' }}
-                        >
-                          <i className="bi bi-star-fill me-1"></i>
-                          Sí
-                        </Badge> : 
-                        <Badge 
-                          bg="secondary" 
-                          className="fw-medium px-3 py-2"
-                          style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text-secondary)' }}
-                        >
-                          No
-                        </Badge>
-                      }
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+                    )}
+                  </Card.Body>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="text-center p-4">
@@ -104,6 +83,8 @@ function ClientManagement({ showToast }) {
   const [name, setName] = useState('');
   const [status, setStatus] = useState('Activo');
   const [type, setType] = useState('Ordinario');
+  const [product, setProduct] = useState('');
+  const [brand, setBrand] = useState('');
   const [loading, setLoading] = useState(false);
   
   const [clients, setClients] = useState([]);
@@ -148,10 +129,22 @@ function ClientManagement({ showToast }) {
     e.preventDefault();
     setLoading(true);
     try {
+      const normalizedNewName = name.toLowerCase();
+
+      const existingClient = clients.find(
+        (c) => c.name.toLowerCase() === normalizedNewName
+      );
+
+      if (existingClient) {
+        showToast('Ya existe un cliente con este nombre. Intenta con uno diferente.', 'danger');
+        setLoading(false);
+        return; 
+      }
+
       const res = await fetch('/api/clients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, status, type })
+        body: JSON.stringify({ name, status, type, product, brand })
       });
       const data = await res.json();
       if (!res.ok) {
@@ -160,6 +153,8 @@ function ClientManagement({ showToast }) {
       setName('');
       setStatus('Activo');
       setType('Ordinario');
+      setProduct('');
+      setBrand('');
       fetchClients();
       showToast('Cliente registrado con éxito!', 'success');
     } catch (err) {
@@ -232,30 +227,22 @@ function ClientManagement({ showToast }) {
   };
 
   return (
-    <div className="clients-dashboard">
-      <div className="mb-5 text-center">
+    <div className="px-md-4 py-4">
+      <div className="text-center mb-5">
         <h1 
           className="fw-bold mb-3 display-4"
           style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            textShadow: '0 4px 8px rgba(0,0,0,0.1)'
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)' // Responsive font size
           }}
         >
-          <i className="bi bi-people me-3"></i>
           Gestión de Clientes
         </h1>
-        <p 
-          className="opacity-75 fs-5 fw-medium"
-          style={{ 
-            maxWidth: '600px', 
-            margin: '0 auto',
-            color: 'var(--color-text-secondary)'
-          }}
-        >
-          Administra tu base de clientes y visualiza su historial de interacciones
+        <p className="lead text-secondary fw-medium">
+          Administra tus clientes y visualiza sus interacciones.
         </p>
       </div>
 
@@ -283,8 +270,8 @@ function ClientManagement({ showToast }) {
                 opacity: 0.8
               }}
             />
-            <Card.Body className="d-flex flex-column p-4 position-relative">
-              <Card.Title 
+            <Card.Body className="p-4 d-flex flex-column">
+              <Card.Title
                 className="mb-4 fw-bold text-center"
                 style={{
                   background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
@@ -358,6 +345,42 @@ function ClientManagement({ showToast }) {
                     <option>Premium</option>
                   </Form.Select>
                 </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold fs-6" style={{ color: 'var(--color-text-secondary)' }}>
+                    <i className="bi bi-box me-2"></i>
+                    Producto
+                  </Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    placeholder="Ingresa el producto principal" 
+                    value={product} 
+                    onChange={e => setProduct(e.target.value)} 
+                    style={{
+                      background: 'var(--color-bg-surface)',
+                      border: '2px solid var(--color-border)',
+                      borderRadius: '10px',
+                      padding: '0.75rem 1rem'
+                    }}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold fs-6" style={{ color: 'var(--color-text-secondary)' }}>
+                    <i className="bi bi-gem me-2"></i>
+                    Marca
+                  </Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    placeholder="Ingresa la marca asociada" 
+                    value={brand} 
+                    onChange={e => setBrand(e.target.value)} 
+                    style={{
+                      background: 'var(--color-bg-surface)',
+                      border: '2px solid var(--color-border)',
+                      borderRadius: '10px',
+                      padding: '0.75rem 1rem'
+                    }}
+                  />
+                </Form.Group>
                 <div className="mt-auto pt-3">
                   <Button 
                     type="submit" 
@@ -424,11 +447,16 @@ function ClientManagement({ showToast }) {
               >
                 <i className="bi bi-people me-2"></i>
                 Lista de Clientes
-                <Badge 
+                <Badge
                   className="ms-3 fw-bold px-3 py-2 fs-6"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-                    border: 'none'
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: 'none',
+                    textShadow: '0 1px 2px #0008',
+                    color: 'white !important',
+                    WebkitTextFillColor: 'white !important',
+                    WebkitBackgroundClip: 'initial !important',
+                    backgroundClip: 'initial !important'
                   }}
                 >
                   {clients.length}
@@ -473,47 +501,72 @@ function ClientManagement({ showToast }) {
                   >
                     <thead>
                       <tr>
-                        <th className="fw-bold text-center" style={{ padding: '1rem' }}>
+                        <th className="fw-bold text-center" style={{ padding: '1rem', verticalAlign: 'middle' }}>
                           <i className="bi bi-person me-2"></i>
                           Nombre
                         </th>
-                        <th className="fw-bold text-center" style={{ padding: '1rem' }}>
+                        <th className="fw-bold text-center" style={{ padding: '1rem', verticalAlign: 'middle' }}>
                           <i className="bi bi-activity me-2"></i>
                           Estado
                         </th>
-                        <th className="fw-bold text-center" style={{ padding: '1rem' }}>
+                        <th className="fw-bold text-center" style={{ padding: '1rem', verticalAlign: 'middle' }}>
                           <i className="bi bi-tag me-2"></i>
                           Tipo
+                        </th>
+                        <th className="fw-bold text-center" style={{ padding: '1rem', verticalAlign: 'middle' }}>
+                          <i className="bi bi-box me-2"></i>
+                          Producto
+                        </th>
+                        <th className="fw-bold text-center" style={{ padding: '1rem', verticalAlign: 'middle' }}>
+                          <i className="bi bi-gem me-2"></i>
+                          Marca
+                        </th>
+                        <th className="fw-bold text-center" style={{ padding: '1rem', verticalAlign: 'middle' }}>
+                          <i className="bi bi-info-circle me-2"></i>
+                          Detalles
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {clients.map((c) => (
+                      {clients.map((client) => (
                         <tr 
-                          key={c.id} 
-                          onClick={() => handleRowClick(c)} 
-                          style={{ 
+                          key={client.id} 
+                          onClick={() => handleRowClick(client)} 
+                          style={{
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease'
+                            transition: 'background-color 0.2s ease-in-out',
+                            borderBottom: '1px solid var(--color-border)'
                           }}
-                          className="client-row"
+                          className="client-table-row"
                         >
-                          <td className="align-middle fw-bold text-center" style={{ padding: '1rem' }}>
-                            {c.name}
+                          <td className="align-middle fw-medium">{client.name}</td>
+                          <td className="align-middle text-center">{getStatusBadge(client.status)}</td>
+                          <td className="align-middle text-center">{getTypeBadge(client.type)}</td>
+                          <td className="align-middle fw-medium text-center">{client.product || '-'}</td>
+                          <td className="align-middle fw-medium text-center">{client.brand || '-'}</td>
+                          <td className="align-middle text-center">
+                            <Button
+                              variant="link"
+                              className="text-decoration-none p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRowClick(client);
+                              }}
+                            >
+                              <i className="bi bi-eye fs-5" style={{ color: 'var(--color-accent)' }}></i>
+                            </Button>
                           </td>
-                          <td className="align-middle text-center">{getStatusBadge(c.status)}</td>
-                          <td className="align-middle text-center">{getTypeBadge(c.type)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </Table>
                 </div>
               )}
-              {!listLoading && clients.length === 0 && (
+              {!listLoading && !listError && clients.length === 0 && (
                 <div className="text-center p-5">
                   <div 
                     className="mb-4"
-                    style={{ 
+                    style={{
                       fontSize: '4rem',
                       background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
                       WebkitBackgroundClip: 'text',
@@ -533,7 +586,7 @@ function ClientManagement({ showToast }) {
       </Row>
 
       <ClientJourneyModal 
-        client={selectedClient} 
+        client={selectedClient}
         interactions={interactions}
         show={showModal}
         onHide={() => setShowModal(false)}

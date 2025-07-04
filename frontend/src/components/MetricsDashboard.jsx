@@ -59,7 +59,7 @@ function MetricCard({ title, value, children, unit = '', icon, gradient = 'prima
           {title}
         </Card.Title>
         <div 
-          className="display-5 fw-bold mb-3 metric-value"
+          className="display-5 fw-bold mb-3 metric-value text-center"
           style={{
             background: gradients[gradient],
             WebkitBackgroundClip: 'text',
@@ -69,7 +69,12 @@ function MetricCard({ title, value, children, unit = '', icon, gradient = 'prima
           }}
         >
           {value}
-          {unit && <span className="fs-6 ms-2 opacity-75">{unit}</span>}
+          {unit && <span className="fs-6 ms-2" style={{
+            background: gradients[gradient],
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>{unit}</span>}
         </div>
         {children}
       </Card.Body>

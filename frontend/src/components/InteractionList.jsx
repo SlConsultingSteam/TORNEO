@@ -1,10 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Table, Badge, Card, Spinner, Alert, Row, Col } from 'react-bootstrap';
+import { Table, Badge, Card, Spinner, Alert, Row, Col, Modal, Button } from 'react-bootstrap';
+import InteractionForm from './InteractionForm';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
-function InteractionList({ refreshFlag }) {
+function InteractionList({ refreshFlag, showToast }) {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [interactionToDelete, setInteractionToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [localRefresh, setLocalRefresh] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [interactionToEdit, setInteractionToEdit] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('desc'); // 'desc' para más reciente, 'asc' para más antigua
 
   useEffect(() => {
     const fetchInteractions = async () => {
@@ -26,9 +37,43 @@ function InteractionList({ refreshFlag }) {
       }
     };
     fetchInteractions();
-  }, [refreshFlag]);
+  }, [refreshFlag, localRefresh]);
 
-  const renderContent = () => {
+  const handleDeleteClick = (interaction) => {
+    setInteractionToDelete(interaction);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!interactionToDelete) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/interactions/${interactionToDelete.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('No se pudo eliminar la interacción.');
+      setShowDeleteModal(false);
+      setInteractionToDelete(null);
+      setLocalRefresh(f => !f);
+      showToast('Interacción eliminada con éxito!', 'success');
+    } catch (err) {
+      showToast(err.message, 'danger');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleEditClick = (interaction) => {
+    setInteractionToEdit(interaction);
+    setShowEditModal(true);
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    setInteractionToEdit(null);
+    setLocalRefresh(f => !f);
+    showToast('Interacción editada con éxito!', 'success');
+  };
+
+  const renderContent = (sortedAndFilteredInteractions) => {
     if (loading) {
       return (
         <div className="text-center p-5">
@@ -56,7 +101,7 @@ function InteractionList({ refreshFlag }) {
         </Alert>
       );
     }
-    if (interactions.length === 0) {
+    if (sortedAndFilteredInteractions.length === 0) {
       return (
         <div className="text-center p-5">
           <div 
@@ -108,10 +153,13 @@ function InteractionList({ refreshFlag }) {
                 <i className="bi bi-star me-2"></i>
                 Potencial Recompra
               </th>
+              <th className="fw-bold text-center" style={{ padding: '1rem', minWidth: 120 }}>
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
-            {interactions.map((inter) => (
+            {sortedAndFilteredInteractions.map((inter) => (
               <tr 
                 key={inter.id}
                 className="interaction-row"
@@ -160,6 +208,28 @@ function InteractionList({ refreshFlag }) {
                     </Badge>
                   }
                 </td>
+                <td className="align-middle text-center" style={{ minWidth: 120, display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                  <OverlayTrigger placement="top" overlay={<Tooltip>Editar</Tooltip>}>
+                    <button
+                      className="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center"
+                      title="Editar"
+                      style={{ borderRadius: '50%', width: 36, height: 36, padding: 0, background: '#0d6efd', borderColor: '#0d6efd' }}
+                      onClick={() => handleEditClick(inter)}
+                    >
+                      <i className="bi bi-pencil" style={{ fontSize: 20, color: 'white' }}></i>
+                    </button>
+                  </OverlayTrigger>
+                  <OverlayTrigger placement="top" overlay={<Tooltip>Eliminar</Tooltip>}>
+                    <button
+                      className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center"
+                      title="Eliminar"
+                      style={{ borderRadius: '50%', width: 36, height: 36, padding: 0, background: '#dc3545', borderColor: '#dc3545' }}
+                      onClick={() => handleDeleteClick(inter)}
+                    >
+                      <i className="bi bi-trash" style={{ fontSize: 20, color: 'white' }}></i>
+                    </button>
+                  </OverlayTrigger>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -167,6 +237,17 @@ function InteractionList({ refreshFlag }) {
       </div>
     );
   };
+
+  const sortedAndFilteredInteractions = interactions
+    .filter(interaction =>
+      interaction.clientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      interaction.type.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
 
   return (
     <Card 
@@ -191,30 +272,87 @@ function InteractionList({ refreshFlag }) {
           opacity: 0.8
         }}
       />
-      <Card.Body className="p-4 position-relative">
-        <Card.Title 
-          className="mb-4 fw-bold text-center"
-          style={{
-            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            fontSize: '1.5rem'
-          }}
-        >
-          <i className="bi bi-list-ul me-2"></i>
-          Interacciones Recientes
-          <Badge 
-            className="ms-3 fw-bold px-3 py-2 fs-6"
-            style={{ 
-              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-              border: 'none'
-            }}
-          >
-            {interactions.length}
-          </Badge>
-        </Card.Title>
-        {renderContent()}
+      <Card.Header className="bg-surface border-0 pb-0" style={{ padding: '1.5rem 1.5rem 0.5rem 1.5rem' }}>
+        <Row className="align-items-center mb-3">
+          <Col xs={12} md={6}>
+            <h5 className="fw-bold mb-0" style={{ color: 'var(--color-text-header)' }}>
+              Interacciones Recientes ({sortedAndFilteredInteractions.length})
+            </h5>
+          </Col>
+          <Col xs={12} md={6} className="d-flex justify-content-end align-items-center mt-3 mt-md-0">
+            <div className="input-group" style={{ maxWidth: 300 }}>
+              <input 
+                type="text" 
+                className="form-control"
+                placeholder="Buscar cliente o tipo..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ backgroundColor: 'var(--color-bg-input)', borderColor: 'var(--color-border-input)', color: 'var(--color-text-main)' }}
+              />
+              <button 
+                className="btn btn-outline-secondary"
+                type="button"
+                onClick={() => setSortOrder(prev => (prev === 'desc' ? 'asc' : 'desc'))}
+                style={{ borderColor: 'var(--color-border-input)', color: 'var(--color-text-main)' }}
+              >
+                <i className={`bi bi-sort-numeric-${sortOrder === 'desc' ? 'down' : 'up'}`}></i>
+              </button>
+            </div>
+          </Col>
+        </Row>
+      </Card.Header>
+      <Card.Body className="p-0">
+        {renderContent(sortedAndFilteredInteractions)}
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title className="fw-bold">Confirmar Eliminación</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            ¿Estás seguro de que deseas eliminar esta interacción?
+            <br />
+            <span className="text-danger fw-bold">Esta acción no se puede deshacer.</span>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDeleteModal(false)} disabled={deleting}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={handleConfirmDelete} disabled={deleting}>
+              {deleting ? 'Eliminando...' : 'Eliminar'}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered size="md">
+          <Modal.Body className="position-relative" style={{ background: 'var(--color-bg-card-dark)', padding: '0' }}>
+            <button
+              type="button"
+              className="btn-close-custom"
+              onClick={() => setShowEditModal(false)}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                background: 'transparent',
+                border: 'none',
+                padding: '0.5rem',
+                opacity: 1,
+                transition: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1050
+              }}
+            >
+              <i className="bi bi-x-lg" style={{ color: 'white', fontSize: 24 }}></i>
+            </button>
+            <InteractionForm
+              initialValues={interactionToEdit}
+              editMode={true}
+              onSuccess={handleEditSuccess}
+              onError={(msg) => showToast(msg, 'danger')}
+            />
+          </Modal.Body>
+        </Modal>
       </Card.Body>
     </Card>
   );

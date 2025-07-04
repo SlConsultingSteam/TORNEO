@@ -1,48 +1,20 @@
 {
   "clients": [
     {
-      "id": 1751490141115,
-      "name": "pepe",
+      "id": 1751661902951,
+      "name": "Pedro",
       "status": "Dormido",
       "type": "Premium"
-    },
-    {
-      "id": 1751490790438,
-      "name": "andrea",
-      "status": "Activo",
-      "type": "Premium"
-    },
-    {
-      "id": 1751495785949,
-      "name": "felipe",
-      "status": "Dormido",
-      "type": "Ordinario"
     }
   ],
   "interactions": [
     {
-      "id": 1751489801804,
-      "clientId": "andrea",
+      "id": 1751661924042,
+      "clientId": "Pedro",
       "type": "Preventa",
-      "date": "2025-04-30",
-      "notes": "ropa",
+      "date": "2025-07-03",
+      "notes": "Practicas buenas",
       "repurchasePotential": true
-    },
-    {
-      "id": 1751489812917,
-      "clientId": "felipe",
-      "type": "Preventa",
-      "date": "2025-07-07",
-      "notes": "esa",
-      "repurchasePotential": false
-    },
-    {
-      "id": 1751494592627,
-      "clientId": "Juan",
-      "type": "Preventa",
-      "date": "2025-07-01",
-      "notes": "aaaa",
-      "repurchasePotential": false
     }
   ]
 }

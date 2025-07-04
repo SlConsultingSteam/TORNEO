@@ -125,6 +125,52 @@ app.post('/api/interactions', validateInteraction, (req, res) => {
   }
 });
 
+// DELETE /api/interactions/:id
+app.delete('/api/interactions/:id', (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const data = readData();
+    const index = data.interactions.findIndex(i => i.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Interacción no encontrada.' });
+    }
+    data.interactions.splice(index, 1);
+    writeData(data);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor al eliminar la interacción.' });
+  }
+});
+
+// PUT /api/interactions/:id
+app.put('/api/interactions/:id', (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { clientId, type, date, notes, repurchasePotential } = req.body;
+    const data = readData();
+    const index = data.interactions.findIndex(i => i.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Interacción no encontrada.' });
+    }
+    // Validación básica
+    if (!clientId || !type || !date) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos: clientId, tipo y fecha.' });
+    }
+    data.interactions[index] = {
+      ...data.interactions[index],
+      clientId,
+      type,
+      date,
+      notes: notes || '',
+      repurchasePotential: repurchasePotential || false
+    };
+    writeData(data);
+    res.json(data.interactions[index]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor al editar la interacción.' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
 }); 
