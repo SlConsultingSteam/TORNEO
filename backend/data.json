@@ -9,5 +9,14 @@
       "brand": "margarita"
     }
   ],
-  "interactions": []
+  "interactions": [
+    {
+      "id": 1751664184415,
+      "clientId": "Pedro",
+      "type": "Preventa",
+      "date": "2025-07-02",
+      "notes": "Pruebas",
+      "repurchasePotential": true
+    }
+  ]
 }
