@@ -40,7 +40,13 @@ function readData() {
 
 function writeData(data) {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    console.log('=== ESCRIBIENDO EN DATA.JSON ===');
+    console.log('Datos a escribir:', data);
+    const jsonString = JSON.stringify(data, null, 2);
+    console.log('JSON generado:', jsonString);
+    fs.writeFileSync(DATA_FILE, jsonString);
+    console.log('Archivo data.json actualizado exitosamente');
+    console.log('=== FIN DE ESCRITURA ===');
   } catch (err) {
     console.error("Error escribiendo en data.json:", err);
   }
@@ -77,19 +83,79 @@ app.get('/api/clients', (req, res) => {
 // POST /api/clients
 app.post('/api/clients', validateClient, (req, res) => {
   try {
-    const { name, status, type } = req.body;
+    console.log('=== CREANDO NUEVO CLIENTE ===');
+    console.log('Datos recibidos:', req.body);
+    
+    const { name, status, type, product, brand } = req.body;
+    console.log('Datos extraídos:', { name, status, type, product, brand });
+    
     const data = readData();
+    console.log('Datos actuales leídos:', data);
+    
     const newClient = {
       id: Date.now(),
       name,
       status,
-      type
+      type,
+      product: product || '',
+      brand: brand || ''
     };
+    console.log('Nuevo cliente a crear:', newClient);
+    
     data.clients.push(newClient);
+    console.log('Array de clientes después de agregar:', data.clients);
+    
+    console.log('Guardando datos...');
     writeData(data);
+    console.log('Datos guardados exitosamente');
+    
+    console.log('=== CLIENTE CREADO ===');
     res.status(201).json(newClient);
   } catch (error) {
+    console.error('Error al crear cliente:', error);
     res.status(500).json({ error: 'Error interno del servidor al crear el cliente.' });
+  }
+});
+
+// PUT /api/clients/:id
+app.put('/api/clients/:id', validateClient, (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { name, status, type, product, brand } = req.body;
+    const data = readData();
+    const index = data.clients.findIndex(c => c.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Cliente no encontrado.' });
+    }
+    data.clients[index] = {
+      ...data.clients[index],
+      name,
+      status,
+      type,
+      product: product || '',
+      brand: brand || ''
+    };
+    writeData(data);
+    res.json(data.clients[index]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor al editar el cliente.' });
+  }
+});
+
+// DELETE /api/clients/:id
+app.delete('/api/clients/:id', (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const data = readData();
+    const index = data.clients.findIndex(c => c.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Cliente no encontrado.' });
+    }
+    data.clients.splice(index, 1);
+    writeData(data);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor al eliminar el cliente.' });
   }
 });
 
